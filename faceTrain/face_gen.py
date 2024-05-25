@@ -29,7 +29,7 @@ while True:
             # увеличиваем счётчик кадров
             i = i+1
             # записываем файл на диск
-            cv2.imwrite("dataSet/face-"+name + '.' + str(i) + ".jpg", gray[y-offset:y+h+offset,x-offset:x+w+offset])
+            cv2.imwrite("dataSet/face-" + name + '.' + str(i) + ".jpg", gray[y-offset:y+h+offset,x-offset:x+w+offset])
             # формируем размеры окна для вывода лица
             cv2.rectangle(im, (x-50, y-50), (x+w+50, y+h+50), (225, 0, 0), 2)
             # показываем очередной кадр, который мы запомнили

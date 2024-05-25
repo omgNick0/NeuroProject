@@ -51,5 +51,7 @@ while cv2.waitKey(1) < 0:
             cv2.imshow('Face recognition', im)
             # делаем паузу
             #cv2.waitKey(10)
-
+# освобождаем камеру
+cam.release()
+# удаляем все созданные окна
 cv2.destroyAllWindows()

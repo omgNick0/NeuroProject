@@ -10,25 +10,24 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("My App")
+        self.setStyleSheet("background-color: grey")
 
         self.scanning_button = QPushButton("start scanning")
         self.scanning_button.clicked.connect(self.scanning)
 
-        self.face_train_button = QPushButton("start training")
-        self.face_train_button.clicked.connect(self.face_train)
-
-        self.face_gen_button = QPushButton("generate dataset")
-        self.face_gen_button.clicked.connect(self.face_gen)
+        self.face_train_gen_button = QPushButton("add student")
+        self.face_train_gen_button.clicked.connect(self.face_train_gen)
 
         self.setFixedSize(800, 600)
+        self.scanning_button.setStyleSheet("color: green;")
+
         # Устанавливаем центральный виджет Window.
         #self.setCentralWidget(self.scanning_button)
         #self.setCentralWidget(self.face_train_button)
 
         layout = QVBoxLayout()
         layout.addWidget(self.scanning_button)
-        layout.addWidget(self.face_train_button)
-        layout.addWidget(self.face_gen_button)
+        layout.addWidget(self.face_train_gen_button)
 
         container = QWidget()
         container.setLayout(layout)
@@ -38,10 +37,8 @@ class MainWindow(QMainWindow):
 
     def scanning(self):
         runpy.run_module('main')
-    def face_train(self):
-        runpy.run_module('face_train')
-    def face_gen(self):
-        runpy.run_module('face_gen')
+    def face_train_gen(self):
+        runpy.run_module('face_train_gen')
 
 app = QApplication(sys.argv)
 
