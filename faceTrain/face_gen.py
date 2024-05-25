@@ -24,22 +24,20 @@ while True:
     # настраиваем параметры распознавания и получаем лицо с камеры
     faces = detector.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5, minSize=(100, 100))
     # обрабатываем лица
-    for(x, y, w, h) in faces:
-        # увеличиваем счётчик кадров
-        i = i+1
-        # записываем файл на диск
-
-        ## try except ...
-
-        cv2.imwrite("dataSet/face-"+name + '.' + str(i) + ".jpg", gray[y-offset:y+h+offset,x-offset:x+w+offset])
-        # формируем размеры окна для вывода лица
-        cv2.rectangle(im, (x-50, y-50), (x+w+50, y+h+50), (225, 0, 0), 2)
-        # показываем очередной кадр, который мы запомнили
-        cv2.imshow('im', im[y-offset:y+h+offset, x-offset:x+w+offset])
-        # делаем паузу
-        cv2.waitKey(100)
+    if(len(faces) > 0):
+        for(x, y, w, h) in faces:
+            # увеличиваем счётчик кадров
+            i = i+1
+            # записываем файл на диск
+            cv2.imwrite("dataSet/face-"+name + '.' + str(i) + ".jpg", gray[y-offset:y+h+offset,x-offset:x+w+offset])
+            # формируем размеры окна для вывода лица
+            cv2.rectangle(im, (x-50, y-50), (x+w+50, y+h+50), (225, 0, 0), 2)
+            # показываем очередной кадр, который мы запомнили
+            cv2.imshow('im', im[y-offset:y+h+offset, x-offset:x+w+offset])
+            # делаем паузу
+            cv2.waitKey(100)
     # если у нас хватает кадров
-    if i > 50: # 50 фото
+    if i >= 50: # 50 фото
         # освобождаем камеру
         video.release()
         # удаляем все созданные окна

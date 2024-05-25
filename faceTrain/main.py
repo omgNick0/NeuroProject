@@ -27,23 +27,29 @@ while cv2.waitKey(1) < 0:
     # определяем лица на видео
     faces = faceCascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5, minSize=(100, 100),
                                          flags=cv2.CASCADE_SCALE_IMAGE)
-    # перебираем все найденные лица
-    for (x, y, w, h) in faces:
-        # получаем id пользователя
-        nbr_predicted, coord = recognizer.predict(gray[y:y + h, x:x + w])
-        # рисуем прямоугольник вокруг лица
-        cv2.rectangle(im, (x - 50, y - 50), (x + w + 50, y + h + 50), (225, 0, 0), 2)
-        # если мы знаем id пользователя
-        if nbr_predicted == 1:
-            # подставляем вместо него имя человека
-            nbr_predicted = 'Nick'
 
-        if nbr_predicted == 2:
-            nbr_predicted = 'Kirill'
-
-        # добавляем текст к рамке
-        cv2.putText(im, str(nbr_predicted), (x, y + h), font, 1.1, (0, 255, 0))
-        # выводим окно с изображением с камеры
+    if(len(faces) == 0):
         cv2.imshow('Face recognition', im)
-        # делаем паузу
-        cv2.waitKey(10)
+    else:
+        # перебираем все найденные лица
+        for (x, y, w, h) in faces:
+            # получаем id пользователя
+            nbr_predicted, coord = recognizer.predict(gray[y:y + h, x:x + w])
+            # рисуем прямоугольник вокруг лица
+            cv2.rectangle(im, (x - 50, y - 50), (x + w + 50, y + h + 50), (225, 0, 0), 2)
+            # если мы знаем id пользователя
+            if nbr_predicted == 1:
+                # подставляем вместо него имя человека
+                nbr_predicted = 'serg'
+
+            if nbr_predicted == 2:
+                nbr_predicted = 'Kirill'
+
+            # добавляем текст к рамке
+            cv2.putText(im, str(nbr_predicted), (x, y + h), font, 1.1, (0, 255, 0))
+            # выводим окно с изображением с камеры
+            cv2.imshow('Face recognition', im)
+            # делаем паузу
+            #cv2.waitKey(10)
+
+cv2.destroyAllWindows()

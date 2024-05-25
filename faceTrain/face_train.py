@@ -9,8 +9,6 @@ from PIL import Image
 #
 cv2.face.LBPHFaceRecognizer_create()
 
-
-
 # получаем путь к этому скрипту
 path = os.path.dirname(os.path.abspath(__file__))
 # создаём новый распознаватель лиц
@@ -23,7 +21,7 @@ dataPath = path+r'/dataSet'
 # получаем картинки и подписи из датасета
 def get_images_and_labels(datapath):
      # получаем путь к картинкам
-     image_paths = [os.path.join(datapath, f) for f in os.listdir(datapath)]
+     image_paths = [os.path.join(dataPath, f) for f in os.listdir(dataPath)]
      # списки картинок и подписей на старте пустые
      images = []
      labels = []
