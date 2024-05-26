@@ -13,10 +13,6 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QVBoxL
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtCore, QtGui, QtWidgets
 
-name_str = ''
-surname_str = ''
-group_str = ''
-
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -73,132 +69,12 @@ class Ui_Dialog(object):
         self.surname.setText(_translate("Dialog", "Фамилия: "))
         self.group.setText(_translate("Dialog", "Группа: "))
     def fill_file(self):
-        name_str = self.name_line.text()
-        surname_str = self.surname_line.text()
-        group_str = self.group_line.text()
-
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(308, 219)
-        self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
-        self.centralwidget.setEnabled(True)
-        self.centralwidget.setStyleSheet("font: 25 16pt \"Cascadia Code Light\"")
-        self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
-        self.verticalLayout.setObjectName("verticalLayout")
-
-        self.scanning = QtWidgets.QPushButton(parent=self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.scanning.sizePolicy().hasHeightForWidth())
-        self.scanning.setSizePolicy(sizePolicy)
-        self.scanning.setStyleSheet("color: rgb(255, 255, 255);\n"
-"background-color: rgb(170, 0, 0);")
-        self.scanning.setObjectName("scanning")
-        self.scanning.clicked.connect(self.scanning_face)
-
-        self.verticalLayout.addWidget(self.scanning)
-        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
-        self.verticalLayout.addItem(spacerItem)
-
-        self.add_stud = QtWidgets.QPushButton(parent=self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.add_stud.sizePolicy().hasHeightForWidth())
-        self.add_stud.setSizePolicy(sizePolicy)
-        self.add_stud.setStyleSheet("color: rgb(255, 255, 255);\n"
-"background-color: rgb(0, 0, 127);")
-        self.add_stud.setObjectName("add_stud")
-        self.add_stud.clicked.connect(self.face_train_gen)
-
-
-        self.verticalLayout.addWidget(self.add_stud)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
-        self.verticalLayout.addItem(spacerItem1)
-
-        self.show_list = QtWidgets.QPushButton(parent=self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.show_list.sizePolicy().hasHeightForWidth())
-        self.show_list.setSizePolicy(sizePolicy)
-        self.show_list.setStyleSheet("color: rgb(255, 255, 255);\n"
-"background-color: rgb(170, 0, 0);")
-        self.show_list.setObjectName("show_list")
-        self.show_list.clicked.connect(self.enter_stud_info)
-
-        self.verticalLayout.addWidget(self.show_list)
-        MainWindow.setCentralWidget(self.centralwidget)
-
-        self.retranslateUi(MainWindow)
-        self.scanning.clicked.connect(self.scanning.setFocus) # type: ignore
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-    def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.scanning.setText(_translate("MainWindow", "Режим сканирования"))
-        self.add_stud.setText(_translate("MainWindow", "Добавить студента"))
-        self.show_list.setText(_translate("MainWindow", "Показать список студентов"))
-
-
-    def scanning_face(self):
-        # получаем путь к этому скрипту
-        path = os.path.dirname(os.path.abspath(__file__))
-        # создаём новый распознаватель лиц
-        recognizer = cv2.face.LBPHFaceRecognizer_create()
-        # добавляем в него модель, которую мы обучили на прошлых этапах
-        recognizer.read(path + r'/trainer/trainer.yml')
-        # указываем, что мы будем искать лица по примитивам Хаара
-        faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
-        # получаем доступ к камере
-        cam = cv2.VideoCapture(0)
-        # настраиваем шрифт для вывода подписей
-        font = cv2.FONT_HERSHEY_SIMPLEX
-
-        """TODO: How many FPS ???"""
-
-        # запускаем цикл
-        while cv2.waitKey(1) < 0:
-            # получаем видеопоток
-            ret, im = cam.read()
-            # переводим его в ч/б
-            gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-            # определяем лица на видео
-            faces = faceCascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5, minSize=(100, 100),
-                                                 flags=cv2.CASCADE_SCALE_IMAGE)
-
-            if (len(faces) == 0):
-                cv2.imshow('Face recognition', im)
-            else:
-                # перебираем все найденные лица
-                for (x, y, w, h) in faces:
-                    # получаем id пользователя
-                    nbr_predicted, coord = recognizer.predict(gray[y:y + h, x:x + w])
-                    # рисуем прямоугольник вокруг лица
-                    cv2.rectangle(im, (x - 50, y - 50), (x + w + 50, y + h + 50), (225, 0, 0), 2)
-                    # если мы знаем id пользователя
-                    if nbr_predicted == 1:
-                        # подставляем вместо него имя человека
-                        nbr_predicted = 'serg'
-
-                    if nbr_predicted == 2:
-                        nbr_predicted = 'Kirill'
-
-                    # добавляем текст к рамке
-                    cv2.putText(im, str(nbr_predicted), (x, y + h), font, 1.1, (0, 255, 0))
-                    # выводим окно с изображением с камеры
-                    cv2.imshow('Face recognition', im)
-                    # делаем паузу
-                    # cv2.waitKey(10)
-        # освобождаем камеру
-        cam.release()
-        # удаляем все созданные окна
-        cv2.destroyAllWindows()
-    def face_train_gen(self):
+        name = str(abs(hash(self.group_line.text())+ hash(self.name_line.text()) + hash(self.surname_line.text()))%1000)
+        with open("Students.txt", "a") as file:
+            file.write(name + ',')
+            file.write(self.group_line.text() + ',')
+            file.write(self.name_line.text() + ' ')
+            file.write(self.surname_line.text() + '\n')
         # получаем путь к этому скрипту
         path = os.path.dirname(os.path.abspath(__file__))
         # указываем, что мы будем искать лица по примитивам Хаара
@@ -215,8 +91,6 @@ class Ui_MainWindow(object):
                 value = line.split(':')[1].replace('\n', '')
                 print(key, value)
         '''
-        # запрашиваем номер пользователя
-        name = input('Введите номер пользователя: ')
         # получаем доступ к камере
         video = cv2.VideoCapture(0)
         # запускаем цикл
@@ -287,18 +161,173 @@ class Ui_MainWindow(object):
         recognizer.save(path + r'/trainer/trainer.yml')
         # удаляем из памяти все созданные окна
         cv2.destroyAllWindows()
+
+class Ui_List(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(400, 300)
+        self.gridLayout = QtWidgets.QGridLayout(Dialog)
+        self.gridLayout.setObjectName("gridLayout")
+
+        self.listView = QtWidgets.QListWidget(parent=Dialog)
+        self.listView.setObjectName("listView")
+        self.gridLayout.addWidget(self.listView, 0, 0, 1, 1)
+        self.read_file()
+        arr = self.read_file()
+        self.listView.addItems(arr)
+
+        self.retranslateUi(Dialog)
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
+
+    def retranslateUi(self, Dialog):
+        _translate = QtCore.QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+
+    def read_file(self):
+        arr = []
+        with open("Students.txt", "r") as file:
+            for line in file:
+                arr.append(line.replace('\n', '').split(',')[1] + '        ' + line.replace('\n', '').split(',')[2])
+                print(arr)
+        return arr
+
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(308, 219)
+        self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
+        self.centralwidget.setEnabled(True)
+        self.centralwidget.setStyleSheet("font: 25 16pt \"Cascadia Code Light\"")
+        self.centralwidget.setObjectName("centralwidget")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
+        self.verticalLayout.setObjectName("verticalLayout")
+
+        self.scanning = QtWidgets.QPushButton(parent=self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.scanning.sizePolicy().hasHeightForWidth())
+        self.scanning.setSizePolicy(sizePolicy)
+        self.scanning.setStyleSheet("color: rgb(255, 255, 255);\n"
+"background-color: rgb(170, 0, 0);")
+        self.scanning.setObjectName("scanning")
+        self.scanning.clicked.connect(self.scanning_face)
+
+        self.verticalLayout.addWidget(self.scanning)
+        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.verticalLayout.addItem(spacerItem)
+
+        self.add_stud = QtWidgets.QPushButton(parent=self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.add_stud.sizePolicy().hasHeightForWidth())
+        self.add_stud.setSizePolicy(sizePolicy)
+        self.add_stud.setStyleSheet("color: rgb(255, 255, 255);\n"
+"background-color: rgb(0, 0, 127);")
+        self.add_stud.setObjectName("add_stud")
+        self.add_stud.clicked.connect(self.enter_stud_info)
+
+
+        self.verticalLayout.addWidget(self.add_stud)
+        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.verticalLayout.addItem(spacerItem1)
+
+        self.show_list = QtWidgets.QPushButton(parent=self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.show_list.sizePolicy().hasHeightForWidth())
+        self.show_list.setSizePolicy(sizePolicy)
+        self.show_list.setStyleSheet("color: rgb(255, 255, 255);\n"
+"background-color: rgb(170, 0, 0);")
+        self.show_list.setObjectName("show_list")
+        self.show_list.clicked.connect(self.show_stud_list)
+
+        self.verticalLayout.addWidget(self.show_list)
+        MainWindow.setCentralWidget(self.centralwidget)
+
+        self.retranslateUi(MainWindow)
+        self.scanning.clicked.connect(self.scanning.setFocus) # type: ignore
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.scanning.setText(_translate("MainWindow", "Режим сканирования"))
+        self.add_stud.setText(_translate("MainWindow", "Добавить студента"))
+        self.show_list.setText(_translate("MainWindow", "Показать список студентов"))
+
+
+    def scanning_face(self):
+        # получаем путь к этому скрипту
+        path = os.path.dirname(os.path.abspath(__file__))
+        # создаём новый распознаватель лиц
+        recognizer = cv2.face.LBPHFaceRecognizer_create()
+        # добавляем в него модель, которую мы обучили на прошлых этапах
+        recognizer.read(path + r'/trainer/trainer.yml')
+        # указываем, что мы будем искать лица по примитивам Хаара
+        faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+        # получаем доступ к камере
+        cam = cv2.VideoCapture(0)
+        # настраиваем шрифт для вывода подписей
+        font = cv2.FONT_HERSHEY_SIMPLEX
+
+        """TODO: How many FPS ???"""
+
+        # запускаем цикл
+        while cv2.waitKey(1) < 0:
+            # получаем видеопоток
+            ret, im = cam.read()
+            # переводим его в ч/б
+            gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+            # определяем лица на видео
+            faces = faceCascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5, minSize=(100, 100),
+                                                 flags=cv2.CASCADE_SCALE_IMAGE)
+
+            if (len(faces) == 0):
+                cv2.imshow('Face recognition', im)
+            else:
+                # перебираем все найденные лица
+                for (x, y, w, h) in faces:
+                    # получаем id пользователя
+                    nbr_predicted, coord = recognizer.predict(gray[y:y + h, x:x + w])
+                    # рисуем прямоугольник вокруг лица
+                    cv2.rectangle(im, (x - 50, y - 50), (x + w + 50, y + h + 50), (225, 0, 0), 2)
+                    # если мы знаем id пользователя
+                    if nbr_predicted == 1:
+                        # подставляем вместо него имя человека
+                        nbr_predicted = 'serg'
+
+                    if nbr_predicted == 2:
+                        nbr_predicted = 'Kirill'
+
+                    # добавляем текст к рамке
+                    cv2.putText(im, str(nbr_predicted), (x, y + h), font, 1.1, (0, 255, 0))
+                    # выводим окно с изображением с камеры
+                    cv2.imshow('Face recognition', im)
+                    # делаем паузу
+                    # cv2.waitKey(10)
+        # освобождаем камеру
+        cam.release()
+        # удаляем все созданные окна
+        cv2.destroyAllWindows()
+
     def enter_stud_info(self):
         mess = QtWidgets.QDialog()
         ui = Ui_Dialog()
         ui.setupUi(mess)
         mess.show()
+        #mess.enterEvent(self.face_train_gen())
         mess.exec()
-        with open("Students.txt", "a") as file:
-            print(group_str, name_str, surname_str)
-            file.write(group_str)
-            file.write(name_str)
-            file.write(surname_str + '\n')
+        #mess.customEvent(self.face_train_gen())
 
+    def show_stud_list(self):
+        list = QtWidgets.QDialog()
+        ui = Ui_List()
+        ui.setupUi(list)
+        list.show()
+        list.exec()
 
 
 if __name__ == "__main__":
