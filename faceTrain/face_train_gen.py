@@ -6,6 +6,44 @@ import os
 import numpy as np
 # встроенная библиотека для работы с изображениями
 from PIL import Image
+import runpy
+import sys
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
+from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QVBoxLayout, QWidget
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
+
+class Ui_enter_stud_info(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(255, 127)
+        self.enter_stud_info = QtWidgets.QWidget(parent=MainWindow)
+        self.enter_stud_info.setStyleSheet("font: 20pt \"MS Shell Dlg 2\";")
+        self.enter_stud_info.setObjectName("enter_stud_info")
+        self.formLayout_2 = QtWidgets.QFormLayout(self.enter_stud_info)
+        self.formLayout_2.setObjectName("formLayout_2")
+        self.name = QtWidgets.QLabel(parent=self.enter_stud_info)
+        self.name.setObjectName("name")
+        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.ItemRole.LabelRole, self.name)
+        self.surname = QtWidgets.QLabel(parent=self.enter_stud_info)
+        self.surname.setObjectName("surname")
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.ItemRole.LabelRole, self.surname)
+        self.name_line = QtWidgets.QLineEdit(parent=self.enter_stud_info)
+        self.name_line.setObjectName("name_line")
+        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.ItemRole.FieldRole, self.name_line)
+        self.surname_line = QtWidgets.QLineEdit(parent=self.enter_stud_info)
+        self.surname_line.setObjectName("surname_line")
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.ItemRole.FieldRole, self.surname_line)
+        MainWindow.setCentralWidget(self.enter_stud_info)
+
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "BUOMPEI"))
+        self.name.setText(_translate("MainWindow", "Имя: "))
+        self.surname.setText(_translate("MainWindow", "Фамилия: "))
 
 # получаем путь к этому скрипту
 path = os.path.dirname(os.path.abspath(__file__))
@@ -56,39 +94,32 @@ recognizer = cv2.face.LBPHFaceRecognizer_create()
 faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 # путь к датасету с фотографиями пользователей
 dataPath = path + r'/dataSet'
+# получаем путь к картинкам
+image_paths = [os.path.join(dataPath, f) for f in os.listdir(dataPath)]
+# списки картинок и подписей на старте пустые
+images = []
+labels = []
+# перебираем все картинки в датасете
+for image_path in image_paths:
+    # читаем картинку и сразу переводим в ч/б
+    image_pil = Image.open(image_path).convert('L')
+    # переводим картинку в numpy-массив
+    image = np.array(image_pil, 'uint8')
+    # получаем id пользователя из имени файла
+    nbr = int(os.path.split(image_path)[1].split(".")[0].replace("face-", ""))
+    # определяем лицо на картинке
+    faces = faceCascade.detectMultiScale(image)
+    # если лицо найдено
+    for (x, y, w, h) in faces:
+        # добавляем его к списку картинок
+        images.append(image[y: y + h, x: x + w])
+        # добавляем id пользователя в список подписей
+        labels.append(nbr)
+        # выводим текущую картинку на экран
+        cv2.imshow("Adding faces to traning set...", image[y: y + h, x: x + w])
+        # делаем паузу
+        #cv2.waitKey(100)
 
-# получаем картинки и подписи из датасета
-def get_images_and_labels(datapath):
-     # получаем путь к картинкам
-     image_paths = [os.path.join(dataPath, f) for f in os.listdir(dataPath)]
-     # списки картинок и подписей на старте пустые
-     images = []
-     labels = []
-     # перебираем все картинки в датасете
-     for image_path in image_paths:
-         # читаем картинку и сразу переводим в ч/б
-         image_pil = Image.open(image_path).convert('L')
-         # переводим картинку в numpy-массив
-         image = np.array(image_pil, 'uint8')
-         # получаем id пользователя из имени файла
-         nbr = int(os.path.split(image_path)[1].split(".")[0].replace("face-", ""))
-         # определяем лицо на картинке
-         faces = faceCascade.detectMultiScale(image)
-         # если лицо найдено
-         for (x, y, w, h) in faces:
-             # добавляем его к списку картинок
-             images.append(image[y: y + h, x: x + w])
-             # добавляем id пользователя в список подписей
-             labels.append(nbr)
-             # выводим текущую картинку на экран
-             cv2.imshow("Adding faces to traning set...", image[y: y + h, x: x + w])
-             # делаем паузу
-             #cv2.waitKey(100)
-     # возвращаем список картинок и подписей
-     return images, labels
-
-# получаем список картинок и подписей
-images, labels = get_images_and_labels(dataPath)
 # обучаем модель распознавания на наших картинках и учим сопоставлять её лица и подписи к ним
 recognizer.train(images, np.array(labels))
 # сохраняем модель
